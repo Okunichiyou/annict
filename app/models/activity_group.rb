@@ -71,13 +71,30 @@ class ActivityGroup < ApplicationRecord
 
       items = case trackable_type
       when "Status"
-        all_statuses.find_all { |s| activities.pluck(:trackable_id).include?(s.id) }
+        start_time = Time.now
+        result = all_statuses.find_all { |s| activities.pluck(:trackable_id).include?(s.id) }
+        Rails.logger.info "[For Measure] Finding statuses took: #{(Time.now - start_time).round(3)} seconds"
+        result
+      
       when "EpisodeRecord"
+        start_time = Time.now
         episode_records = all_episode_records.find_all { |er| activities.pluck(:trackable_id).include?(er.id) }
-        all_records.find_all { |r| episode_records.pluck(:record_id).include?(r.id) }
+        Rails.logger.info "[For Measure] Finding episode_records took: #{(Time.now - start_time).round(3)} seconds"
+      
+        start_time = Time.now
+        result = all_records.find_all { |r| episode_records.pluck(:record_id).include?(r.id) }
+        Rails.logger.info "[For Measure] Finding records from episode_records took: #{(Time.now - start_time).round(3)} seconds"
+        result
+      
       when "AnimeRecord", "WorkRecord"
+        start_time = Time.now
         work_records = all_work_records.find_all { |ar| activities.pluck(:trackable_id).include?(ar.id) }
-        all_records.find_all { |r| work_records.pluck(:record_id).include?(r.id) }
+        Rails.logger.info "[For Measure] Finding work_records took: #{(Time.now - start_time).round(3)} seconds"
+      
+        start_time = Time.now
+        result = all_records.find_all { |r| work_records.pluck(:record_id).include?(r.id) }
+        Rails.logger.info "[For Measure] Finding records from work_records took: #{(Time.now - start_time).round(3)} seconds"
+        result
       end
 
       case limit
